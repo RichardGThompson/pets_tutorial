@@ -2,15 +2,41 @@ import "./styles.css";
 import {useEffect, useState, useContext} from 'react';
 import { PetItem } from "../../petItem";
 import PetsOrderContext from "../../../context/petsOrderContext";
+import { Search } from "../../search";
 
 export const PetsHomePage = () => {
   const [pets, setPets] = useState([]);
+
+  const [filteredPets, setFilteredPets] = useState([]);
+  const [searchString, setSearchString] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const globalState = useContext(PetsOrderContext);
 
   useEffect( () => {
     getPets();
   }, []);
+
+  useEffect(() => {
+    handleSearchByBreed();
+  }, [searchString]);
+
+  const handleSearchByBreed = () => {
+    if(searchString === ""){
+      setFilteredPets(pets);
+      return;
+    }
+    const petsFiltered = pets.filter(
+      (pet) => {
+        const breed = pet.breed.stringValue.toLowerCase();
+        const isMatch = breed.indexOf(searchString.trim().toLowerCase());
+
+        return isMatch !== -1;
+      }
+    )
+
+    setFilteredPets(petsFiltered);
+  }
 
   const getPets = async() => {
     try{
@@ -22,17 +48,35 @@ export const PetsHomePage = () => {
       });
 
       setPets(formattedData);
+      setFilteredPets(formattedData);
       globalState.initPets(formattedData);
-    } catch(error){
-      console.log("🚀 ~ file: index.jsx ~ line 16 ~ getPets ~ error", error)
+      setLoading(false);
+    } 
+    catch(error){
+      console.log("🚀 ~ file: index.jsx ~ line 16 ~ getPets ~ error", error);
+      setLoading(false);
     }
+  }
+
+  const handleSearchUpdate = (event) => {
+    setSearchString(event.target.value);
   }
   
   return (
     <div className="pets-page">
       <h1 className="pets-title uppercase">All Pets</h1>
+      <Search handleSearchUpdate={handleSearchUpdate}/>
       <div className="pets-container">
-        {pets.map((pet) => <PetItem image={pet.image.stringValue} age={pet.age.stringValue} name={pet.name.stringValue} breed={pet.breed.stringValue} type={pet.petType.stringValue} id={pet.id.stringValue}/>)}
+        {filteredPets.map((pet) => <PetItem image={pet.image.stringValue} age={pet.age.stringValue} name={pet.name.stringValue} breed={pet.breed.stringValue} type={pet.petType.stringValue} id={pet.id.stringValue}/>)}
+
+        {
+          !loading && filteredPets.length === 0 && <p>Nothing found...</p>
+        }
+
+        {
+          loading && <p>Loading data...</p>
+        }
+      
       </div>
     </div>
   );
