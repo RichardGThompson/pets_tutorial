@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useHistory } from "react-router-dom";
 import "./styles.css";
+
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 export const LoginPage = () => {
     
@@ -8,12 +11,33 @@ export const LoginPage = () => {
 
     const {register, handleSubmit} = useForm();
 
-    const loginUser = (formVals) => {
-        console.log("Login submitted", formVals);
+    const history = useHistory();
+
+    const loginUser = async(formVals) => {
+        const auth = getAuth();
+                
+        try{
+            const loginUser = await signInWithEmailAndPassword(auth, formVals.user, formVals.password);
+            console.log("after login", auth);
+            history.push("/");
+
+        }
+        catch(error){
+            console.log("🚀 ~ file: index.jsx ~ line 20 ~ loginUser ~ error", error) 
+        }
     }
 
-    const signUpUser = (formVals) => {
-        console.log("Sign up submitted", formVals);
+    const signUpUser = async(formVals) => {
+        const auth = getAuth();
+
+        try{
+            const auth = getAuth();
+            const signUpUser = await createUserWithEmailAndPassword(auth, formVals.user, formVals.password);
+            history.push("/");
+        }
+        catch(error){
+            console.log("🚀 ~ file: index.jsx ~ line 32 ~ signUpUser ~ error", error)
+        }
     }
     
     return(
@@ -53,7 +77,7 @@ export const LoginPage = () => {
                         <label htmlFor="password-confirm">Confirm Password</label>
                         <input type="password" required name="password-confirm" {...register('password-confirm')}/>
 
-                        <input type="submit" value="Login"/>
+                        <input type="submit" value="Sign Up"/>
 
                         <p>Already have an account? Login</p>
                         <button onClick={() => setMode("login")}>Login</button>

@@ -3,6 +3,8 @@ import "./styles.css";
 import PetsOrderContext from "../../../context/petsOrderContext";
 import { OrderItem } from "../../orderItem";
 import { Button } from "../../button";
+import {useHistory} from 'react-router-dom';
+import {getAuth, onAuthStateChanged} from 'firebase/auth';
 
 export const ShoppingCartPage = () => {
 
@@ -13,6 +15,17 @@ export const ShoppingCartPage = () => {
   useEffect( () => {
     setOrder(globalState.order);
   }, [globalState]);
+
+  const history = useHistory();
+
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if(!user){
+        history.push('/login');
+      }
+    });
+  })
 
   return (
     <div className="pets-page">
