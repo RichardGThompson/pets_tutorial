@@ -15,6 +15,9 @@ export const Navbar = () => {
                 <li>
                     <NavLink activeClassName="nav-selected" to="/cart"> My Cart</NavLink>
                 </li>
+                <li>
+                    <NavLink activeClassName="nav-selected" to="/new"> Add Pet</NavLink>
+                </li>
                 <Logout/>
             </ul>
         </nav>
